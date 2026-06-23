@@ -3,6 +3,7 @@ import '../models/achievement.dart';
 import '../models/content.dart';
 import '../models/lesson.dart';
 import '../models/plan.dart';
+import '../models/prompt.dart';
 import '../models/quote.dart';
 import '../services/pocketbase_service.dart';
 import '../services/appwrite_service.dart';
@@ -47,6 +48,18 @@ final achievementsProvider = FutureProvider<List<Achievement>>((ref) async {
 
 final plansProvider = FutureProvider<List<Plan>>((ref) async {
   return ref.read(pocketBaseProvider).getPlans();
+});
+
+final onboardingProvider = FutureProvider<List<OnboardingCard>>((ref) async {
+  return ref.read(pocketBaseProvider).getOnboarding();
+});
+
+final quickPracticesProvider = FutureProvider<List<QuickPractice>>((ref) async {
+  return ref.read(pocketBaseProvider).getQuickPractices();
+});
+
+final promptForLessonProvider = FutureProvider.family<ReflectionPrompt?, String>((ref, lessonId) async {
+  return ref.read(pocketBaseProvider).getPromptForLesson(lessonId);
 });
 
 // ---------- single lesson lookup ----------

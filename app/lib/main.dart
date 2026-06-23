@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/auth_providers.dart';
 import 'router/app_router.dart';
+import 'services/onboarding_service.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -20,9 +21,10 @@ class _RiseUpAppState extends ConsumerState<RiseUpApp> {
   @override
   void initState() {
     super.initState();
-    // Try to restore session on cold start.
+    // Try to restore session + check onboarding flag.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(userStateProvider.notifier).bootstrap();
+      ref.read(sharedPrefsProvider);   // warm the prefs cache
     });
   }
 

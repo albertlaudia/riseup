@@ -180,6 +180,52 @@ const DEFS = [
     indexes: ['CREATE UNIQUE INDEX idx_rup_plans_code ON rup_plans (code)'],
   },
 
+  // ---------- reflection prompts (one per lesson) ----------
+  {
+    name: 'rup_prompts',
+    relTargets: ['rup_lessons'],
+    fields: (ids) => [
+      { name: 'lesson', type: 'relation', required: true, collectionId: ids['rup_lessons'], maxSelect: 1, cascadeDelete: true },
+      { name: 'text', type: 'text', required: true },
+      { name: 'order', type: 'number', required: false },
+      { name: 'created_at', type: 'date', required: false },
+    ],
+    indexes: ['CREATE INDEX idx_rup_prompts_lesson ON rup_prompts (lesson)'],
+  },
+
+  // ---------- quick practice cards (60-second wisdom scroll) ----------
+  {
+    name: 'rup_quick_practices',
+    relTargets: [],
+    fields: () => [
+      { name: 'title', type: 'text', required: true },
+      { name: 'slug', type: 'text', required: true },
+      { name: 'hook', type: 'text', required: false },         // one-line hook
+      { name: 'body', type: 'text', required: true },          // ~30-50 words
+      { name: 'action', type: 'text', required: false },       // 1-2 sentence call to action
+      { name: 'theme', type: 'text', required: false },        // freeform category label
+      { name: 'order', type: 'number', required: false },
+      { name: 'is_pro', type: 'bool', required: false },
+      { name: 'created_at', type: 'date', required: false },
+    ],
+    indexes: ['CREATE UNIQUE INDEX idx_rup_quick_practices_slug ON rup_quick_practices (slug)'],
+  },
+
+  // ---------- onboarding cards (3 swipeable intro screens) ----------
+  {
+    name: 'rup_onboarding',
+    relTargets: [],
+    fields: () => [
+      { name: 'order', type: 'number', required: true },
+      { name: 'title', type: 'text', required: true },
+      { name: 'body', type: 'text', required: true },
+      { name: 'icon', type: 'text', required: false },          // emoji
+      { name: 'cta', type: 'text', required: false },           // CTA button label
+      { name: 'created_at', type: 'date', required: false },
+    ],
+    indexes: ['CREATE UNIQUE INDEX idx_rup_onboarding_order ON rup_onboarding (order)'],
+  },
+
   // ---------- user-scoped (DEPRECATED — user data lives in Appwrite) ----------
   // The collections below are no longer created by this bootstrap.
   // They still exist in the live PB instance from the previous run but are
@@ -261,6 +307,9 @@ const RULES = {
   rup_lessons:       { list: '', view: '', create: null, update: null, delete: null },
   rup_achievements:  { list: '', view: '', create: null, update: null, delete: null },
   rup_plans:         { list: '', view: '', create: null, update: null, delete: null },
+  rup_prompts:       { list: '', view: '', create: null, update: null, delete: null },
+  rup_quick_practices:{ list: '', view: '', create: null, update: null, delete: null },
+  rup_onboarding:    { list: '', view: '', create: null, update: null, delete: null },
 };
 
 function userScoped(relField) {

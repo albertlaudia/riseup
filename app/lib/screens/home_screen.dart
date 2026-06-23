@@ -9,6 +9,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../widgets/lesson_card.dart';
 import '../widgets/quote_card.dart';
+import '../widgets/reengagement_banner.dart';
 import '../widgets/streak_flame.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -46,9 +47,54 @@ class HomeScreen extends ConsumerWidget {
                 if (user != null && user.userId.isNotEmpty) StreakFlame(days: user.streakCurrent),
               ],
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
+            const ReEngagementBanner(),
 
+            const SizedBox(height: 8),
             // Daily lesson
+
+            // Quick practice entry (always available, even before the daily lesson)
+            InkWell(
+              onTap: () => context.push('/quick-practice'),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.paperCard,
+                  border: Border.all(color: AppColors.ink.withValues(alpha: 0.05)),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40, height: 40,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withValues(alpha: 0.10),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: const Text('⚡', style: TextStyle(fontSize: 20)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('60-second practice', style: AppText.display(size: 15)),
+                          const SizedBox(height: 2),
+                          Text(
+                            'No time for a full lesson? A small dose.',
+                            style: AppText.body(size: 12, color: AppColors.inkMute),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward, color: AppColors.inkMute, size: 18),
+                  ],
+                ),
+              ),
+            ),
             lessons.when(
               loading: () => const _Skeletons(height: 220),
               error: (e, _) => _ErrorBlock(message: '$e'),

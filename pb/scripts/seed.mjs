@@ -20,6 +20,9 @@ import { QUOTES } from './seed/quotes.mjs';
 import { LESSONS } from './seed/lessons.mjs';
 import { ACHIEVEMENTS } from './seed/achievements.mjs';
 import { PLANS } from './seed/plans.mjs';
+import { PROMPTS } from './seed/prompts.mjs';
+import { QUICK_PRACTICES } from './seed/quick_practices.mjs';
+import { ONBOARDING } from './seed/onboarding.mjs';
 
 const PB_URL = process.env.PB_URL || 'https://pocketbase.scaleupcrm.com';
 const PB_IDENTITY = process.env.PB_IDENTITY;
@@ -251,6 +254,77 @@ async function main() {
     pCreated++;
   }
   log(`  +${pCreated} new, =${pSkipped} already present`);
+
+  // ----- reflection prompts (one per lesson) -----
+  log('seeding rup_prompts');
+  const lessonsForPrompts = await listAll('rup_lessons');
+  const lessonBySlug = new Map(lessonsForPrompts.map((l) => [l.slug, l.id]));
+  const existingPrompts = await listAll('rup_prompts');
+  const existingByLesson = new Set(existingPrompts.map((p) => p.lesson));
+  let prCreated = 0, prSkipped = 0;
+  for (const p of PROMPTS) {
+    const lessonId = lessonBySlug.get(p.lesson_slug);
+    if (!lessonId) { log(`  ! unknown lesson: ${p.lesson_slug}`); continue; }
+    if (existingByLesson.has(lessonId)) { prSkipped++; continue; }
+    await A('/api/collections/rup_prompts/records', {
+      method: 'POST',
+      body: JSON.stringify({
+        lesson: lessonId,
+        text: p.text,
+        order: 1,
+        created_at: new Date().toISOString(),
+      }),
+    });
+    prCreated++;
+  }
+  log(`  +${prCreated} new, =${prSkipped} already present`);
+
+  // ----- quick practices (60-second wisdom cards) -----
+  log('seeding rup_quick_practices');
+  const existingQP = await listAll('rup_quick_practices');
+  const existingQPSlugs = new Set(existingQP.map((q) => q.slug));
+  let qpCreated = 0, qpSkipped = 0;
+  for (const q of QUICK_PRACTICES) {
+    if (existingQPSlugs.has(q.slug)) { qpSkipped++; continue; }
+    await A('/api/collections/rup_quick_practices/records', {
+      method: 'POST',
+      body: JSON.stringify({
+        title: q.title,
+        slug: q.slug,
+        hook: q.hook,
+        body: q.body,
+        action: q.action,
+        theme: q.theme,
+        order: q.order,
+        is_pro: !!q.is_pro,
+        created_at: new Date().toISOString(),
+      }),
+    });
+    qpCreated++;
+  }
+  log(`  +${qpCreated} new, =${qpSkipped} already present`);
+
+  // ----- onboarding cards -----
+  log('seeding rup_onboarding');
+  const existingOB = await listAll('rup_onboarding');
+  const existingOBOrders = new Set(existingOB.map((o) => o.order));
+  let obCreated = 0, obSkipped = 0;
+  for (const o of ONBOARDING) {
+    if (existingOBOrders.has(o.order)) { obSkipped++; continue; }
+    await A('/api/collections/rup_onboarding/records', {
+      method: 'POST',
+      body: JSON.stringify({
+        order: o.order,
+        title: o.title,
+        body: o.body,
+        icon: o.icon,
+        cta: o.cta,
+        created_at: new Date().toISOString(),
+      }),
+    });
+    obCreated++;
+  }
+  log(`  +${obCreated} new, =${obSkipped} already present`);
 
   log('done.');
 }

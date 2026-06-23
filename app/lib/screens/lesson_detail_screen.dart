@@ -9,6 +9,7 @@ import '../theme/app_text_styles.dart';
 import '../utils/markdown_renderer.dart';
 import '../widgets/pro_badge.dart';
 import '../widgets/quote_card.dart';
+import '../widgets/reflection_sheet.dart';
 import '../widgets/theme_pill.dart';
 
 class LessonDetailScreen extends ConsumerStatefulWidget {
@@ -40,6 +41,17 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Lesson complete · +10 XP')),
         );
+        // After completion: show reflection sheet if we have a prompt for this lesson
+        final prompt = await ref.read(pocketBaseProvider).getPromptForLesson(lesson.id);
+        if (!mounted) return;
+        if (prompt != null) {
+          await showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => ReflectionSheet(lessonSlug: widget.slug, promptText: prompt.text),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {

@@ -3,6 +3,7 @@ import '../models/achievement.dart';
 import '../models/content.dart';
 import '../models/lesson.dart';
 import '../models/plan.dart';
+import '../models/prompt.dart';
 import '../models/quote.dart';
 
 /// Read-only client for the static content in PocketBase.
@@ -131,5 +132,34 @@ class PocketBaseService {
           sort: 'order',
         );
     return r.items.map(Plan.fromRecord).toList();
+  }
+
+  // ---------- reflection prompts ----------
+  Future<ReflectionPrompt?> getPromptForLesson(String lessonId) async {
+    try {
+      final r = await _pb.collection('rup_prompts').getFirstListItem('lesson="$lessonId"');
+      return ReflectionPrompt.fromRecord(r.toJson());
+    } on ClientException catch (e) {
+      if (e.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
+  // ---------- quick practices ----------
+  Future<List<QuickPractice>> getQuickPractices() async {
+    final r = await _pb.collection('rup_quick_practices').getList(
+          perPage: 50,
+          sort: 'order',
+        );
+    return r.items.map(QuickPractice.fromRecord).toList();
+  }
+
+  // ---------- onboarding ----------
+  Future<List<OnboardingCard>> getOnboarding() async {
+    final r = await _pb.collection('rup_onboarding').getList(
+          perPage: 10,
+          sort: 'order',
+        );
+    return r.items.map(OnboardingCard.fromRecord).toList();
   }
 }

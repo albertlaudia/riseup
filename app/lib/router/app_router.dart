@@ -6,19 +6,36 @@ import '../screens/about_screen.dart';
 import '../screens/home_screen.dart';
 import '../screens/library_screen.dart';
 import '../screens/lesson_detail_screen.dart';
+import '../screens/onboarding_screen.dart';
 import '../screens/paywall_screen.dart';
 import '../screens/profile_screen.dart';
+import '../screens/quick_practice_screen.dart';
 import '../screens/quotes_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/signin_screen.dart';
+import '../services/onboarding_service.dart';
 import '../widgets/shell_scaffold.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
+    redirect: (context, state) {
+      final prefsAsync = ref.read(sharedPrefsProvider);
+      final prefs = prefsAsync.valueOrNull;
+      final onboarded = prefs?.getBool('hasOnboarded') ?? false;
+      final goingToOnboarding = state.matchedLocation == '/onboarding';
+      if (!onboarded && !goingToOnboarding) {
+        return '/onboarding';
+      }
+      if (onboarded && goingToOnboarding) {
+        return '/';
+      }
+      return null;
+    },
     routes: [
       // Auth flow (no shell)
       GoRoute(path: '/signin', builder: (_, __) => const SignInScreen()),
+      GoRoute(path: '/onboarding', builder: (_, __) => const OnboardingScreen()),
 
       // Main shell
       ShellRoute(
@@ -42,6 +59,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/paywall',  builder: (_, __) => const PaywallScreen()),
       GoRoute(path: '/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/about',    builder: (_, __) => const AboutScreen()),
+      GoRoute(path: '/quick-practice', builder: (_, __) => const QuickPracticeScreen()),
     ],
     errorBuilder: (context, state) => Scaffold(
       body: Center(

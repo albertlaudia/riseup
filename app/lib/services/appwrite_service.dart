@@ -286,6 +286,56 @@ class AppwriteService {
       }
     }
   }
+
+  // ---------- journal (reflection entries) ----------
+  static const String colJournal = 'user_journal';
+
+  Future<void> saveJournalEntry({
+    required String userId,
+    required String lessonSlug,
+    required String promptText,
+    required String responseText,
+  }) async {
+    await _db.createDocument(
+      databaseId: databaseId,
+      collectionId: colJournal,
+      documentId: ID.unique(),
+      data: {
+        'userId': userId,
+        'lessonSlug': lessonSlug,
+        'promptText': promptText,
+        'responseText': responseText,
+        'createdAt': DateTime.now().toUtc().toIso8601String(),
+      },
+      permissions: [
+        Permission.read(Role.user(userId)),
+        Permission.write(Role.user(userId)),
+        Permission.delete(Role.user(userId)),
+      ],
+    );
+  }
+
+  Future<List<({String lessonSlug, String promptText, String responseText, DateTime createdAt})>>
+      getJournalEntries(String userId, {int limit = 14}) async {
+    final r = await _db.listDocuments(
+      databaseId: databaseId,
+      collectionId: colJournal,
+      queries: [
+        Query.equal('userId', userId),
+        Query.orderDesc('createdAt'),
+        Query.limit(limit),
+      ],
+    );
+    return r.documents.map((d) {
+      final data = d.data;
+      return (
+        lessonSlug: data['lessonSlug'] as String? ?? '',
+        promptText: data['promptText'] as String? ?? '',
+        responseText: data['responseText'] as String? ?? '',
+        createdAt: DateTime.tryParse(data['createdAt'] as String? ?? '') ?? DateTime.now(),
+      );
+    }).toList();
+  }
 }
 
 /// Helper extension: a User's email + id + name.

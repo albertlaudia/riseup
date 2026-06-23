@@ -211,9 +211,26 @@ const COLLECTIONS = [
       { kind: 'str', key: 'dailyReminderTime', required: false, size: 5 },           // "HH:MM"
       { kind: 'str', key: 'fontSize', required: false, size: 16, default_: 'medium' },// small | medium | large
       { kind: 'str', key: 'tier', required: false, size: 16, default_: 'free' },     // free | pro (cached for fast UI; subscription is the source of truth)
+      { kind: 'int', key: 'streakFreezesUsed', required: false, default_: 0 },
+      { kind: 'dt',  key: 'streakFreezesResetAt', required: false },
     ],
     indexes: [
       { key: 'idx_user', type: IndexType.Unique, attrs: ['userId'] },
+    ],
+  },
+  {
+    id: 'user_journal',
+    name: 'User Journal (reflection entries)',
+    attrs: [
+      { kind: 'str',  key: 'userId', required: true, size: 64 },
+      { kind: 'str',  key: 'lessonSlug', required: true, size: 128 },
+      { kind: 'str',  key: 'promptText', required: true, size: 500 },
+      { kind: 'str',  key: 'responseText', required: false, size: 500 },
+      { kind: 'dt',   key: 'createdAt', required: true },
+    ],
+    indexes: [
+      { key: 'idx_user', type: IndexType.Key, attrs: ['userId'] },
+      { key: 'idx_user_date', type: IndexType.Key, attrs: ['userId', '-createdAt'] },
     ],
   },
 ];

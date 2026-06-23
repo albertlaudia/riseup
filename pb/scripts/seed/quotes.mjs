@@ -1,0 +1,360 @@
+// Quotes — curated, well-attributed Stoic passages.
+// Each entry is independent of any specific translation; we keep the wording
+// that has become the most familiar in English. `is_featured` marks the ones
+// we want in the "quote of the day" rotation.
+
+export const QUOTES = [
+  // --- Marcus Aurelius ---
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'dichotomy-of-control',
+    text: 'You have power over your mind — not outside events. Realize this, and you will find strength.',
+    reflection: 'Most of our suffering comes from trying to control what was never ours to control in the first place.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'perspective',
+    text: 'The happiness of your life depends upon the quality of your thoughts.',
+    reflection: 'You do not choose what happens. You choose what you think about what happens.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'discipline-action',
+    text: 'Waste no more time arguing what a good man should be. Be one.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'memento-mori',
+    text: 'It is not death that a man should fear, but he should fear never beginning to live.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'mindfulness',
+    text: 'Confine yourself to the present.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'resilience',
+    text: 'The impediment to action advances action. What stands in the way becomes the way.',
+    reflection: 'The same wall that blocks you is also the wall you can build on.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'amor-fati',
+    text: 'Accept the things to which fate binds you, and love the people with whom fate brings you together, and do so with all your heart.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'dichotomy-of-control',
+    text: 'How much time he gains who does not look to see what his neighbor says or does or thinks, but only at what he himself does.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'perspective',
+    text: 'Today I escaped anxiety. Or no, I discarded it, because it was within me, in my own perceptions — not outside.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'virtue',
+    text: 'Never esteem anything as of advantage to you that will make you break your word or lose your self-respect.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'mindfulness',
+    text: 'It never ceases to amaze me: we all love ourselves more than other people, but care more about their opinion than our own.',
+  },
+  {
+    author_slug: 'marcus-aurelius',
+    work_slug: 'meditations',
+    theme_slug: 'virtue',
+    text: 'The object of life is not to be on the side of the majority, but to escape finding oneself in the ranks of the insane.',
+  },
+
+  // --- Seneca ---
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'dichotomy-of-control',
+    text: 'It is not the man who has too little, but the man who craves more, that is poor.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'perspective',
+    text: 'We suffer more often in imagination than in reality.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'discipline-action',
+    text: 'Luck is what happens when preparation meets opportunity.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'resilience',
+    text: 'Every new beginning comes from some other beginning\'s end.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'virtue',
+    text: 'He who is brave is free.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'memento-mori',
+    text: 'Begin at once to live, and count each separate day as a separate life.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'on-the-shortness-of-life',
+    theme_slug: 'memento-mori',
+    text: 'While we are postponing, life speeds by.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'on-the-shortness-of-life',
+    theme_slug: 'memento-mori',
+    text: 'It is not that we have a short time to live, but that we waste a lot of it.',
+    reflection: 'The shortage is not in years. The shortage is in attention.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'resilience',
+    text: 'Difficulties strengthen the mind, as labor does the body.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'memento-mori',
+    text: 'The whole future lies in uncertainty: live immediately.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'dichotomy-of-control',
+    text: 'Nothing, Lucilius, is ours, except time.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'memento-mori',
+    text: 'How many have laid waste to your life when you weren\'t aware of what you were losing.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'letters-from-a-stoic',
+    theme_slug: 'virtue',
+    text: 'You act like mortals in all that you fear, and like immortals in all that you desire.',
+  },
+  {
+    author_slug: 'seneca',
+    work_slug: 'on-the-shortness-of-life',
+    theme_slug: 'amor-fati',
+    text: 'He who looks upon a friend in the same way as he looks upon himself — who treats a friend as one of his own number — makes himself a true friend.',
+  },
+
+  // --- Epictetus ---
+  {
+    author_slug: 'epictetus',
+    work_slug: 'enchiridion',
+    theme_slug: 'dichotomy-of-control',
+    text: 'Some things are in our control and others are not.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'enchiridion',
+    theme_slug: 'dichotomy-of-control',
+    text: 'It\'s not what happens to you, but how you react to it that matters.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'dichotomy-of-control',
+    text: 'No man is free who is not master of himself.',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'discipline-action',
+    text: 'First say to yourself what you would be; and then do what you have to do.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'dichotomy-of-control',
+    text: 'Wealth consists not in having great possessions, but in having few wants.',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'perspective',
+    text: 'He is a wise man who does not grieve for the things which he has not, but rejoices for those which he has.',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'enchiridion',
+    theme_slug: 'perspective',
+    text: 'If anyone tells you that a certain person speaks ill of you, do not make excuses about what is said of you, but answer: "He was ignorant of my other faults, else he would not have mentioned these alone."',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'resilience',
+    text: 'It is difficulties that show what men are.',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'perspective',
+    text: 'Man is not worried by real problems so much as by his imagined anxieties about real problems.',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'enchiridion',
+    theme_slug: 'discipline-action',
+    text: 'Don\'t explain your philosophy. Embody it.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'mindfulness',
+    text: 'Any person capable of angering you becomes your master.',
+  },
+  {
+    author_slug: 'epictetus',
+    work_slug: 'discourses',
+    theme_slug: 'mindfulness',
+    text: 'We are disturbed not by what happens to us, but by our thoughts about what happens to us.',
+  },
+
+  // --- Musonius Rufus ---
+  {
+    author_slug: 'musonius-rufus',
+    work_slug: 'lectures-and-fragments',
+    theme_slug: 'discipline-action',
+    text: 'Practice yourself, for heaven\'s sake, in little things; and thence proceed to greater.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'musonius-rufus',
+    work_slug: 'lectures-and-fragments',
+    theme_slug: 'virtue',
+    text: 'We should not believe those who today extol the glory of wealth and say that the wise man is rich — the wise man is content with what is his own, and that is the most certain of all riches.',
+  },
+  {
+    author_slug: 'musonius-rufus',
+    work_slug: 'lectures-and-fragments',
+    theme_slug: 'discipline-action',
+    text: 'If you accomplish something good with hard work, the labor passes quickly, but the good endures.',
+  },
+  {
+    author_slug: 'musonius-rufus',
+    work_slug: 'lectures-and-fragments',
+    theme_slug: 'resilience',
+    text: 'The very fact that something is difficult should make us glad that it is worth doing.',
+  },
+  {
+    author_slug: 'musonius-rufus',
+    work_slug: 'lectures-and-fragments',
+    theme_slug: 'dichotomy-of-control',
+    text: 'We are born for cooperation, like feet, like hands, like eyelids, like the rows of upper and lower teeth. So to work in opposition to one another is against nature.',
+  },
+
+  // --- Ryan Holiday ---
+  {
+    author_slug: 'ryan-holiday',
+    work_slug: 'the-obstacle-is-the-way',
+    theme_slug: 'perspective',
+    text: 'There is no good or bad without us, there is only perception.',
+  },
+  {
+    author_slug: 'ryan-holiday',
+    work_slug: 'the-obstacle-is-the-way',
+    theme_slug: 'dichotomy-of-control',
+    text: 'Choose not to be harmed — and you won\'t feel harmed. Don\'t feel harmed — and you haven\'t been.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'ryan-holiday',
+    work_slug: 'the-obstacle-is-the-way',
+    theme_slug: 'resilience',
+    text: 'The obstacle in the path becomes the path. Never forget, within every obstacle is an opportunity to improve our condition.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'ryan-holiday',
+    work_slug: 'the-daily-stoic',
+    theme_slug: 'mindfulness',
+    text: 'Stillness is the doorway to the soul.',
+  },
+  {
+    author_slug: 'ryan-holiday',
+    work_slug: 'ego-is-the-enemy',
+    theme_slug: 'virtue',
+    text: 'Ego is the enemy of what you want and of what you have.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'ryan-holiday',
+    work_slug: 'ego-is-the-enemy',
+    theme_slug: 'amor-fati',
+    text: 'We choose our actions, but we do not choose the consequences of our actions.',
+  },
+
+  // --- William Irvine ---
+  {
+    author_slug: 'william-irvine',
+    work_slug: 'a-guide-to-the-good-life',
+    theme_slug: 'perspective',
+    text: 'We suffer not so much from the events in our lives as from the stories we tell ourselves about those events.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'william-irvine',
+    work_slug: 'a-guide-to-the-good-life',
+    theme_slug: 'discipline-action',
+    text: 'Stoicism is not about adding things to your life. It is about subtracting.',
+    is_featured: true,
+  },
+  {
+    author_slug: 'william-irvine',
+    work_slug: 'a-guide-to-the-good-life',
+    theme_slug: 'virtue',
+    text: 'The Stoics believed that virtue is sufficient for a good life. To achieve a good life, one must become a virtuous person.',
+  },
+  {
+    author_slug: 'william-irvine',
+    work_slug: 'a-guide-to-the-good-life',
+    theme_slug: 'resilience',
+    text: 'We can be happy even when bad things happen to us — provided that we regard those bad things as not really bad.',
+  },
+];

@@ -1,0 +1,26 @@
+{
+  "name": "RiseUP — Stoic practice",
+  "short_name": "RiseUP",
+  "description": "A daily Stoic practice app. Lessons, quotes, and a streak that doesn't care about your mood.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf6ef",
+  "theme_color": "#1f1d1a",
+  "categories": ["books", "education", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

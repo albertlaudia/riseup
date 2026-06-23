@@ -1,0 +1,68 @@
+// Categories — the core themes of Stoic practice.
+
+export const CATEGORIES = [
+  {
+    slug: 'dichotomy-of-control',
+    name: 'Dichotomy of Control',
+    icon: '🪨',
+    color: '#5B7C99',
+    description: 'The most fundamental Stoic distinction: what is up to us, and what is not.',
+    order: 1,
+  },
+  {
+    slug: 'virtue',
+    name: 'Virtue',
+    icon: '⚖️',
+    color: '#7B68A6',
+    description: 'The four cardinal virtues: wisdom, courage, justice, temperance.',
+    order: 2,
+  },
+  {
+    slug: 'memento-mori',
+    name: 'Memento Mori',
+    icon: '💀',
+    color: '#4A4A4A',
+    description: 'Remember you will die. The practice that makes everything else urgent and clear.',
+    order: 3,
+  },
+  {
+    slug: 'discipline-action',
+    name: 'Discipline & Action',
+    icon: '🔥',
+    color: '#C8553D',
+    description: 'Philosophy is not talk — it is what you do at dawn, what you refuse at noon, and what you finish by dusk.',
+    order: 4,
+  },
+  {
+    slug: 'perspective',
+    name: 'Perspective',
+    icon: '👁️',
+    color: '#6B9080',
+    description: 'Events are not good or bad in themselves — it is the judgment we add that makes them so.',
+    order: 5,
+  },
+  {
+    slug: 'resilience',
+    name: 'Resilience',
+    icon: '🛡️',
+    color: '#8B6F47',
+    description: 'What stands in the way becomes the way. Obstacles are the raw material of growth.',
+    order: 6,
+  },
+  {
+    slug: 'mindfulness',
+    name: 'Mindfulness',
+    icon: '🧘',
+    color: '#A4907C',
+    description: 'Attention is the rarest resource. To be present is to have everything.',
+    order: 7,
+  },
+  {
+    slug: 'amor-fati',
+    name: 'Amor Fati',
+    icon: '🌊',
+    color: '#5C8D89',
+    description: 'Love of fate. Not merely accepting what happens, but embracing it as necessary.',
+    order: 8,
+  },
+];

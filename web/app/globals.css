@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: theme('colors.paper.DEFAULT');
+  color: theme('colors.ink.DEFAULT');
+  font-feature-settings: 'kern', 'liga', 'calt';
+}
+
+::selection {
+  background: theme('colors.accent.DEFAULT');
+  color: theme('colors.paper.DEFAULT');
+}
+
+.prose-reading p {
+  hanging-punctuation: first last;
+}
+
+/* Subtle film-grain texture for the warm-paper background */
+.bg-grain {
+  background-image:
+    radial-gradient(rgba(31, 29, 26, 0.025) 1px, transparent 1px),
+    radial-gradient(rgba(31, 29, 26, 0.018) 1px, transparent 1px);
+  background-size: 24px 24px, 48px 48px;
+  background-position: 0 0, 12px 24px;
+}
+
+/* Hide scrollbars on horizontal pill lists but keep scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

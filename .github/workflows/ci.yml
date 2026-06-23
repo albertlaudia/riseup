@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ---------- web app ----------
+  web:
+    name: Web (build + lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_PB_URL: https://pocketbase.scaleupcrm.com
+
+  # ---------- Flutter app (analyze + test) ----------
+  flutter:
+    name: Flutter (analyze + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: stable
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+
+  # ---------- PocketBase schema sanity check ----------
+  pb-lint:
+    name: PB schema syntax
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax-check all scripts
+        run: |
+          set -e
+          for f in $(find scripts -name '*.mjs' -not -path '*/node_modules/*'); do
+            echo "checking $f"
+            node --check "$f"
+          done
+      - name: JSON-check seed files
+        run: |
+          # (no JSON files today; placeholder for future content-as-data)
+          echo "OK"
+
+  # ---------- Appwrite setup syntax ----------
+  appwrite-lint:
+    name: Appwrite setup syntax
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: pb/scripts/appwrite
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install
+      - run: node --check appwrite-setup.mjs

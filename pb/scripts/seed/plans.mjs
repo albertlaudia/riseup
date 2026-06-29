@@ -1,5 +1,10 @@
 // Subscription plans — static catalog. Lives in PB.
 // `features` is a JSON array of feature codes that this plan unlocks.
+//
+// NOTE: pro_lifetime was removed in 2026-06-29. Lifetime created a long-tail
+// liability that doesn't match operational reality (services may change/stop).
+// If the model proves out (Year 2+), we can ship a "Founders Edition" instead —
+// limited run, refundable pro-rata if we ever shut down.
 
 export const PLANS = [
   {
@@ -64,30 +69,6 @@ export const PLANS = [
     ],
     highlight: true,
     order: 3,
-    active: true,
-  },
-  {
-    code: 'pro_lifetime',
-    name: 'Pro Lifetime',
-    tagline: 'Pay once. Practice forever.',
-    description: 'Everything, forever, on every device you own. For the truly committed.',
-    price_cents: 19900,
-    currency: 'USD',
-    interval: 'lifetime',
-    features: [
-      'unlimited_lessons',
-      'unlimited_quotes',
-      'favorites_sync',
-      'offline_reading',
-      'daily_reminders',
-      'premium_themes',
-      'premium_quotes',
-      'premium_lessons',
-      'priority_support',
-      'lifetime_updates',
-    ],
-    highlight: false,
-    order: 4,
     active: true,
   },
 ];

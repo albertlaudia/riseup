@@ -47,7 +47,7 @@ at `pb/scripts/`. Total ~133 records.
 | `rup_quotes` | 53 | ✅ | 15 marked `is_pro` |
 | `rup_lessons` | 15 | ✅ | Orders 1-4 free, 5-15 pro |
 | `rup_achievements` | 12 | ✅ | 4 marked `is_pro` |
-| `rup_plans` | 4 | ✅ | free, pro_monthly $5.99, pro_yearly $49.99, pro_lifetime $199 |
+| `rup_plans` | 3 (1 inactive) | ✅ | free, pro_monthly $5.99, pro_yearly $49.99 (pro_lifetime deprecated 2026-06-29) |
 | `rup_prompts` | 15 | ✅ | One reflection prompt per lesson |
 | `rup_quick_practices` | 7 | ✅ | 60-second wisdom cards |
 | `rup_onboarding` | 3 | ✅ | First-launch cards |

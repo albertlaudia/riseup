@@ -91,11 +91,14 @@ Pro adds the things that turn a daily visit into a daily practice:
 | Free | $0 | — | funnel |
 | Pro Monthly | $5.99 | $4.20 (70%) | lowest-friction entry |
 | Pro Yearly | $49.99 | $34.99 (70%) | best value, marked in paywall |
-| Pro Lifetime | $199 | $139.30 (70%) | power users, gets cheaper per year the longer you stay |
 
-Lifetime = roughly 3.3 years of monthly, or 4 years of yearly. The
-discount vs the implied perpetual subscription gets steeper over time —
-which is exactly the point. Early believers get a deal.
+**No lifetime tier.** Lifetime creates a long-tail liability that doesn't
+match operational reality — if we ever shut down or migrate to a
+different platform, we owe refunds or continuation, which is awkward to
+defend. Year-2+ options if the model proves out:
+
+- **Family plan** ($99/yr, up to 5 seats) — better unit economics, multiplies LTV per account.
+- **Founders Edition** — limited run (first 500 users), positioned as "thank the early believers". Explicit terms: if we ever shut down, founders get a pro-rata refund. Reframes lifetime as a *bond*, not a *subscription*.
 
 App stores take 30% on the first $1M, 15% after. RevenueCat's small fee on
 top, then Stripe on web. Net is roughly 70% to us.

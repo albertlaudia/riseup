@@ -36,7 +36,7 @@
 | A16 | Seed 12 achievements (streaks, counts, themes explored) | 🟠 | ✅ |
 | A17 | Mark 4 high-end achievements as `is_pro` | 🟠 | ✅ |
 | A18 | `rup_plans` collection (subscription catalog) | 🔴 | ✅ |
-| A19 | Seed 4 plans (free + 3 pro tiers) | 🔴 | ✅ |
+| A19 | Seed 3 plans (free + pro_monthly + pro_yearly; lifetime dropped 2026-06-29) | 🔴 | ✅ |
 | A20 | `rup_prompts` collection (one reflection prompt per lesson) | 🟠 | ✅ |
 | A21 | Seed 15 reflection prompts | 🟠 | ✅ |
 | A22 | `rup_quick_practices` collection (60-second wisdom cards) | 🟠 | ✅ |

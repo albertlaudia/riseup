@@ -32,6 +32,22 @@ The live web app is at https://riseup.stoic (or whatever you've pointed at the `
 
 See [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md) for the full breakdown, including the subscription state machine and the Stripe/RevenueCat hook points.
 
+## Pre-production status
+
+Before shipping to the stores, see:
+- [`docs/AUDIT.md`](./docs/AUDIT.md) — what's built, what's wired-but-untested, what's missing
+- [`docs/TASKS.md`](./docs/TASKS.md) — the master task list (every task with priority + status)
+- [`docs/PRODUCTION.md`](./docs/PRODUCTION.md) — Play Store + App Store checklist
+
+## Commercial plan
+
+[`docs/BUSINESS-PLAN.md`](./docs/BUSINESS-PLAN.md) covers:
+- Market sizing (TAM/SAM/SOM)
+- Pricing strategy + unit economics (CAC $5-8, LTV ~$32)
+- SMART goals: Year 1 → Year 3
+- Moats + risk register
+- A one-page pitch in the appendix
+
 ## Production release
 
 See [`docs/PRODUCTION.md`](./docs/PRODUCTION.md) for the full Play Store + App Store + Web checklist.

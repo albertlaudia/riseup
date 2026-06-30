@@ -36,3 +36,16 @@ coverage/
 .env.local
 .env.*.local
 !.env.example
+
+# Flutter
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/build/
+app/.idea/
+app/.symlinks/
+app/pubspec.lock
+
+# npm artifacts inside Flutter project (Flutter uses Dart, not npm)
+app/package-lock.json
+app/node_modules/

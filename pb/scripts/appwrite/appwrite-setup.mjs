@@ -213,6 +213,8 @@ const COLLECTIONS = [
       { kind: 'str', key: 'tier', required: false, size: 16, default_: 'free' },     // free | pro (cached for fast UI; subscription is the source of truth)
       { kind: 'int', key: 'streakFreezesUsed', required: false, default_: 0 },
       { kind: 'dt',  key: 'streakFreezesResetAt', required: false },
+      { kind: 'str', key: 'fcmToken', required: false, size: 255 },
+      { kind: 'str', key: 'fcmTokenUpdatedAt', required: false, size: 32 },
     ],
     indexes: [
       { key: 'idx_user', type: IndexType.Unique, attrs: ['userId'] },

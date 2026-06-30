@@ -119,11 +119,53 @@ move "users who try it" to "users who come back every day".
 
 ### Daily reminder — full spec
 
-1. `flutter_local_notifications` for local delivery (works offline)
-2. **Server push** via FCM for time-zone-aware delivery (user can change time zones while traveling)
-3. Notification body varies: "Today\'s lesson is *" + lessonTitle + "*"  with a deep link
-4. Quiet hours (default 22:00 - 07:00) — respect
-5. A/B test the time of day (morning vs evening) — but later
+1. ✅ `flutter_local_notifications` for local delivery (works offline) — **shipped in v0.1**
+2. ✅ Local scheduling: notifications fire at user's chosen HH:MM every day, even with no network
+3. ✅ Deep link: notification tap opens the lesson via the `riseup://library/[slug]` route
+4. ✅ Settings screen toggle + time picker (4: 06, 07, 08, 21) wired to reschedule immediately
+5. ✅ Permission flow: requested on first run + on Settings toggle
+6. ⏳ **Server push** via FCM for time-zone-aware delivery — scaffolded at `server/notifications/` (Cloudflare Worker). Wire up in v2 when users actually travel frequently.
+
+#### Local notification setup (already in code)
+
+The Flutter app includes:
+
+- `pubspec.yaml` adds `flutter_local_notifications`, `timezone`, `permission_handler`
+- `lib/services/notification_service.dart` — wrapper around the plugin
+- `lib/services/reminder_scheduler.dart` — orchestrator that picks today's lesson + schedules the notification
+- `android/app/src/main/AndroidManifest.xml` — `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, `USE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED`, deep-link intent-filter
+- `lib/screens/settings_screen.dart` — toggle + time picker call `reschedule()` immediately on change
+
+To test on a real device:
+```bash
+flutter run
+# Toggle notifications on in Settings
+# Wait until the chosen time
+# Tap the notification → opens today's lesson
+```
+
+#### Server push setup (Year 2)
+
+When the local-only version proves out and you want server-pushed notifications:
+
+1. Create Firebase project at console.firebase.google.com
+2. Enable Cloud Messaging API
+3. Create a service account → download JSON key
+4. Deploy `server/notifications/` to Cloudflare Workers:
+   ```bash
+   cd server/notifications
+   npm install
+   wrangler secret put APPWRITE_ENDPOINT
+   wrangler secret put APPWRITE_PROJECT_ID
+   wrangler secret put APPWRITE_API_KEY
+   wrangler secret put FCM_PROJECT_ID
+   wrangler secret put FCM_SERVICE_ACCOUNT_JSON
+   wrangler publish
+   ```
+5. Add `firebase_messaging` to the Flutter app — when FCM issues a token, save it to `user_settings.fcmToken` via `appwrite_service.saveFcmToken(...)`
+6. Worker runs every 15 minutes, sends pushes to users whose reminder time is within ±10 min in their timezone
+
+The work above makes the seam obvious (`saveFcmToken`, the `fcmToken`/`fcmTokenUpdatedAt` fields are already on `user_settings`).
 
 ### Onboarding — spec
 

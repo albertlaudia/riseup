@@ -287,6 +287,15 @@ class AppwriteService {
     }
   }
 
+  /// Save / refresh the FCM device token so server-pushed notifications work.
+  /// Call this from your FCM handler when the token is issued or refreshed.
+  Future<void> saveFcmToken(String userId, String token) async {
+    await saveSettings(userId, {
+      'fcmToken': token,
+      'fcmTokenUpdatedAt': DateTime.now().toUtc().toIso8601String(),
+    });
+  }
+
   // ---------- journal (reflection entries) ----------
   static const String colJournal = 'user_journal';
 

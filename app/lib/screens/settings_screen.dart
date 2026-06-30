@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/app_providers.dart';
 import '../providers/auth_providers.dart';
+import '../services/notification_service.dart';
+import '../services/reminder_scheduler.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 
@@ -49,10 +52,51 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       'dailyReminderTime': _reminderTime,
       'fontSize': _fontSize,
     });
+    // Mirror to local prefs so the scheduler can read even when offline.
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('reminder.notifications', _notifications);
+    await prefs.setString('reminder.time', _reminderTime);
+    // Re-schedule the daily reminder (or cancel if off).
+    await ref.read(reminderSchedulerProvider.notifier).reschedule();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Settings saved.')),
       );
+    }
+  }
+
+  /// Reschedule immediately when the toggle flips — the user shouldn't
+  /// have to tap Save for the reminder to engage.
+  Future<void> _onNotifChanged(bool v) async {
+    setState(() => _notifications = v);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('reminder.notifications', v);
+    await ref.read(reminderSchedulerProvider.notifier).reschedule();
+    // Also persist to Appwrite if signed in.
+    final user = ref.read(userStateProvider).valueOrNull;
+    if (user != null && user.userId.isNotEmpty) {
+      try {
+        await ref.read(appwriteProvider).saveSettings(user.userId, {
+          'notifications': v,
+          'dailyReminderTime': _reminderTime,
+        });
+      } catch (_) {/* fire-and-forget */}
+    }
+  }
+
+  Future<void> _onTimeChanged(String v) async {
+    setState(() => _reminderTime = v);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('reminder.time', v);
+    await ref.read(reminderSchedulerProvider.notifier).reschedule();
+    final user = ref.read(userStateProvider).valueOrNull;
+    if (user != null && user.userId.isNotEmpty) {
+      try {
+        await ref.read(appwriteProvider).saveSettings(user.userId, {
+          'notifications': _notifications,
+          'dailyReminderTime': v,
+        });
+      } catch (_) {/* fire-and-forget */}
     }
   }
 
@@ -117,8 +161,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
             value: _notifications,
-            onChanged: (v) => setState(() => _notifications = v),
+            onChanged: _onNotifChanged,
             title: Text('Send me a daily reminder', style: AppText.body(size: 14)),
+            subtitle: _notifications
+                ? Text(
+                    'Schedules a local notification at ${_formatTime(_reminderTime)} every day. Tap to open today\'s lesson.',
+                    style: AppText.body(size: 11, color: AppColors.inkMute),
+                  )
+                : Text(
+                    'Tap the switch to start the daily nudge.',
+                    style: AppText.body(size: 11, color: AppColors.inkMute),
+                  ),
           ),
           if (_notifications) ...[
             const SizedBox(height: 8),
@@ -131,11 +184,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ('08:00', '8:00'),
                 ('21:00', '21:00'),
               ],
-              onChanged: (v) => setState(() => _reminderTime = v),
+              onChanged: _onTimeChanged,
             ),
             const SizedBox(height: 8),
             Text(
-              'Wire up flutter_local_notifications + FCM to actually deliver this. The slot is reserved.',
+              'Scheduled locally on your device. No data leaves the phone unless you sign in.',
               style: AppText.body(size: 11, color: AppColors.inkMute, height: 1.4),
             ),
           ],
@@ -162,6 +215,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  String _formatTime(String hhmm) {
+    if (hhmm.length != 5) return hhmm;
+    final h = hhmm.substring(0, 2);
+    final m = hhmm.substring(3);
+    final hour = int.tryParse(h) ?? 0;
+    final ampm = hour < 12 ? 'am' : 'pm';
+    final h12 = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+    return '$h12:$m $ampm';
   }
 
   Widget _section(String title) => Padding(

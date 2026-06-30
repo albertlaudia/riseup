@@ -38,6 +38,11 @@ dependencies:
   url_launcher: ^6.3.0
   package_info_plus: ^8.0.0
 
+  # ---------- Daily reminder (local scheduling; FCM-ready) ----------
+  flutter_local_notifications: ^18.0.1
+  timezone: ^0.9.4
+  permission_handler: ^11.3.1
+
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

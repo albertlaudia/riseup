@@ -1,0 +1,9 @@
+name = "riseup-notifications"
+main = "src/index.ts"
+compatibility_date = "2025-04-01"
+
+[triggers]
+crons = ["*/15 * * * *"]    # every 15 minutes
+
+[observability]
+enabled = true

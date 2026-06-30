@@ -182,13 +182,18 @@
 
 | # | Task | Priority | Status |
 |---|---|---|---|
-| D70 | `flutter_local_notifications` integrated | 🟠 | ⬜ |
-| D71 | Local schedule at user's chosen time | 🟠 | ⬜ |
-| D72 | FCM service in Firebase project | 🟠 | ⬜ |
-| D73 | FCM handler in app | 🟠 | ⬜ |
-| D74 | Server cron that calls FCM API daily | 🟠 | ⬜ |
-| D75 | Notification opens the lesson via deep link | 🟠 | ⬜ |
-| D76 | Quiet hours enforcement | 🟡 | ⬜ |
+| D70 | `flutter_local_notifications` + `timezone` + `permission_handler` in pubspec | 🟠 | ✅ |
+| D71 | `NotificationService` (init, schedule daily, cancel, tap handler) | 🟠 | ✅ |
+| D72 | `ReminderScheduler` orchestrator (picks today's lesson, schedules / cancels on settings change) | 🟠 | ✅ |
+| D73 | Settings toggle + time picker wired to reschedule immediately | 🟠 | ✅ |
+| D74 | Android manifest with `POST_NOTIFICATIONS` + `SCHEDULE_EXACT_ALARM` + boot receiver + deep-link intent-filter | 🟠 | ✅ |
+| D75 | Deep link from notification → lesson via `riseup://library/[slug]` | 🟠 | ✅ |
+| D76 | `fcmToken` + `fcmTokenUpdatedAt` fields on `user_settings` collection (Appwrite) | 🟠 | ✅ |
+| D77 | `saveFcmToken` method in Appwrite service | 🟠 | ✅ |
+| D78 | Cloudflare Worker scaffold for server-pushed reminders | 🟡 | ✅ |
+| D79 | Wire actual FCM in Flutter (firebase_messaging dep + token refresh handler) | 🟠 | ⬜ |
+| D80 | Deploy Cloudflare Worker with secrets | 🟠 | ⬜ |
+| D81 | Quiet hours enforcement (e.g. 22:00 - 07:00 skip) | 🟡 | ⬜ |
 
 ### D.7 Streak + achievements
 

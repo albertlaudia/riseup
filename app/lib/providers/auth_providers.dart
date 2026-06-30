@@ -1,6 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_state.dart';
+import '../services/reminder_scheduler.dart';
 import 'app_providers.dart';
 
 /// Holds the current Appwrite user. `null` = signed out.
@@ -83,6 +84,8 @@ class UserNotifier extends StateNotifier<AsyncValue<UserState>> {
     final user = ref.read(currentAppwriteUserProvider);
     if (user == null) return;
     await _refresh(user.$id, user.email, user.name);
+    // Re-schedule daily reminder in case preferences changed.
+    await ref.read(reminderSchedulerProvider.notifier).reschedule();
   }
 }
 

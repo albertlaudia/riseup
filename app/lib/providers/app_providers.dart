@@ -7,6 +7,7 @@ import '../models/prompt.dart';
 import '../models/quote.dart';
 import '../services/pocketbase_service.dart';
 import '../services/appwrite_service.dart';
+import '../services/daily_pick.dart';
 
 /// ---------- service providers (singletons) ----------
 final pocketBaseProvider = Provider<PocketBaseService>((ref) {
@@ -65,6 +66,13 @@ final promptForLessonProvider = FutureProvider.family<ReflectionPrompt?, String>
 // ---------- single lesson lookup ----------
 final lessonBySlugProvider = FutureProvider.family<Lesson?, String>((ref, slug) async {
   return ref.read(pocketBaseProvider).getLessonBySlug(slug);
+});
+// ---------- today's lesson (deterministic daily pick) ----------
+final todaysLessonProvider = FutureProvider<Lesson?>((ref) async {
+  final all = await ref.watch(allLessonsProvider.future);
+  if (all.isEmpty) return null;
+  final idx = DailyPick.dayIndex(all.length);
+  return all[idx];
 });
 
 // ---------- lookup maps (for resolving relations) ----------

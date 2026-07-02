@@ -29,7 +29,7 @@ class UserNotifier extends StateNotifier<AsyncValue<UserState>> {
     }
   }
 
-  Future<void> signIn(String email, String password) async {
+  Future<void> signIn({required String email, required String password}) async {
     state = const AsyncValue.loading();
     try {
       final aw = ref.read(appwriteProvider);
@@ -43,12 +43,28 @@ class UserNotifier extends StateNotifier<AsyncValue<UserState>> {
     }
   }
 
-  Future<void> signUp(String email, String password, {String? name}) async {
+  Future<void> signUp({
+    required String email,
+    required String password,
+    required String displayName,
+    bool marketingOptIn = false,
+  }) async {
     state = const AsyncValue.loading();
     try {
       final aw = ref.read(appwriteProvider);
-      await aw.signUpEmail(email, password, name: name);
-      await signIn(email, password);
+      await aw.signUpEmail(email, password, name: displayName);
+      // Auto-sign-in after sign-up
+      await signIn(email: email, password: password);
+      // Now save settings against the authenticated user
+      try {
+        final user = ref.read(currentAppwriteUserProvider);
+        if (user != null) {
+          await aw.saveSettings(user.$id, {
+            'marketingOptIn': marketingOptIn,
+            'displayName': displayName,
+          });
+        }
+      } catch (_) {/* fire-and-forget */}
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }
@@ -66,16 +82,22 @@ class UserNotifier extends StateNotifier<AsyncValue<UserState>> {
     final active = await aw.activeSubscription(userId);
     final tier = active == null ? UserTier.free : UserTier.pro;
     final completed = await aw.totalLessons(userId);
+    final xpSum = await aw.totalXp(userId);
+    final settings = await aw.getSettings(userId);
+    final quotesRead = (settings['quotesRead'] as int?) ?? 0;
+    final displayName = (settings['displayName'] as String?) ??
+        (name.isEmpty ? email.split('@').first : name);
     state = AsyncValue.data(UserState(
       userId: userId,
       email: email,
-      displayName: name.isEmpty ? email.split('@').first : name,
+      displayName: displayName,
       tier: tier,
       activePlanCode: active?.planCode,
       activeExpiresAt: active?.expiresAt,
       totalLessons: completed,
-      xp: completed * 10,
-      level: 1 + (completed ~/ 5),
+      quotesRead: quotesRead,
+      xp: xpSum,
+      level: 1 + (xpSum ~/ 50),
     ));
   }
 

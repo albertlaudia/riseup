@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../config/app_constants.dart';
 import '../providers/app_providers.dart';
 import '../providers/auth_providers.dart';
-import '../services/notification_service.dart';
 import '../services/reminder_scheduler.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../widgets/haptic.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -19,7 +20,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _theme = 'auto';
   bool _notifications = true;
-  String _reminderTime = '07:00';
+  String _reminderTime = AppConstants.defaultReminderTime;
   String _fontSize = 'medium';
   bool _loaded = false;
 
@@ -30,51 +31,63 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _load() async {
-    final user = ref.read(userStateProvider).valueOrNull;
-    if (user == null || user.userId.isEmpty) return;
-    final s = await ref.read(appwriteProvider).getSettings(user.userId);
-    if (!mounted) return;
-    setState(() {
-      _theme = s['theme'] as String? ?? 'auto';
-      _notifications = s['notifications'] as bool? ?? true;
-      _reminderTime = s['dailyReminderTime'] as String? ?? '07:00';
-      _fontSize = s['fontSize'] as String? ?? 'medium';
-      _loaded = true;
-    });
-  }
-
-  Future<void> _save() async {
-    final user = ref.read(userStateProvider).valueOrNull;
-    if (user == null || user.userId.isEmpty) return;
-    await ref.read(appwriteProvider).saveSettings(user.userId, {
-      'theme': _theme,
-      'notifications': _notifications,
-      'dailyReminderTime': _reminderTime,
-      'fontSize': _fontSize,
-    });
-    // Mirror to local prefs so the scheduler can read even when offline.
+    // Local prefs first
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('reminder.notifications', _notifications);
-    await prefs.setString('reminder.time', _reminderTime);
-    // Re-schedule the daily reminder (or cancel if off).
-    await ref.read(reminderSchedulerProvider.notifier).reschedule();
+    final localNotif = prefs.getBool('reminder.notifications') ?? true;
+    final localTime = prefs.getString('reminder.time') ?? AppConstants.defaultReminderTime;
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Settings saved.')),
-      );
+      setState(() {
+        _notifications = localNotif;
+        _reminderTime = localTime;
+        _loaded = true;
+      });
+    }
+    // Then sync from server if signed in
+    final user = ref.read(userStateProvider).valueOrNull;
+    if (user != null && !user.isAnonymous) {
+      try {
+        final s = await ref.read(appwriteProvider).getSettings(user.userId);
+        if (!mounted) return;
+        setState(() {
+          _theme = s['theme'] as String? ?? _theme;
+          _notifications = s['notifications'] as bool? ?? _notifications;
+          _reminderTime = s['dailyReminderTime'] as String? ?? _reminderTime;
+          _fontSize = s['fontSize'] as String? ?? _fontSize;
+        });
+      } catch (_) {/* offline-first is fine */}
     }
   }
 
-  /// Reschedule immediately when the toggle flips — the user shouldn't
-  /// have to tap Save for the reminder to engage.
+  Future<void> _save({String? theme, String? fontSize}) async {
+    final user = ref.read(userStateProvider).valueOrNull;
+    final patch = <String, dynamic>{
+      'theme': theme ?? _theme,
+      'notifications': _notifications,
+      'dailyReminderTime': _reminderTime,
+      'fontSize': fontSize ?? _fontSize,
+    };
+    if (user != null && !user.isAnonymous) {
+      try {
+        await ref.read(appwriteProvider).saveSettings(user.userId, patch);
+      } catch (_) {/* offline; will retry */}
+    }
+    // Always mirror to local prefs (anonymous + offline)
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('reminder.notifications', _notifications);
+    await prefs.setString('reminder.time', _reminderTime);
+    await prefs.setString('app.theme', _theme);
+    await prefs.setString('app.fontSize', _fontSize);
+    await ref.read(reminderSchedulerProvider.notifier).reschedule();
+  }
+
   Future<void> _onNotifChanged(bool v) async {
+    Haptic.light();
     setState(() => _notifications = v);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('reminder.notifications', v);
     await ref.read(reminderSchedulerProvider.notifier).reschedule();
-    // Also persist to Appwrite if signed in.
     final user = ref.read(userStateProvider).valueOrNull;
-    if (user != null && user.userId.isNotEmpty) {
+    if (user != null && !user.isAnonymous) {
       try {
         await ref.read(appwriteProvider).saveSettings(user.userId, {
           'notifications': v,
@@ -85,12 +98,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _onTimeChanged(String v) async {
+    Haptic.selection();
     setState(() => _reminderTime = v);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('reminder.time', v);
     await ref.read(reminderSchedulerProvider.notifier).reschedule();
     final user = ref.read(userStateProvider).valueOrNull;
-    if (user != null && user.userId.isNotEmpty) {
+    if (user != null && !user.isAnonymous) {
       try {
         await ref.read(appwriteProvider).saveSettings(user.userId, {
           'notifications': _notifications,
@@ -100,10 +114,105 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  Future<void> _onThemeChanged(String v) async {
+    Haptic.selection();
+    setState(() => _theme = v);
+    await _save(theme: v);
+  }
+
+  Future<void> _onFontSizeChanged(String v) async {
+    Haptic.selection();
+    setState(() => _fontSize = v);
+    await _save(fontSize: v);
+  }
+
+  Future<void> _signOut() async {
+    Haptic.medium();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Sign out?'),
+        content: const Text(
+          'Your data stays on this device until you sign in again.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Stay'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await ref.read(userStateProvider.notifier).signOut();
+    if (context.mounted) context.go('/');
+  }
+
+  Future<void> _deleteAccount() async {
+    Haptic.heavy();
+    final confirm = await showDialog<String>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Delete account?'),
+        content: const Text(
+          'This is permanent. We\'ll erase your email, progress, journal, and favorites. You can create a new account any time.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'first'),
+            child: const Text('I understand'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != 'first') return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Type DELETE to confirm'),
+        content: TextField(
+          autofocus: true,
+          decoration: const InputDecoration(hintText: 'DELETE'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete forever'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(appwriteProvider).deleteAccount();
+      await ref.read(userStateProvider.notifier).signOut();
+      if (context.mounted) context.go('/');
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Couldn\'t delete: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userStateProvider).valueOrNull;
-    final isAuthed = user != null && user.userId.isNotEmpty;
+    final isAuthed = user != null && !user.isAnonymous;
 
     return Scaffold(
       appBar: AppBar(
@@ -124,7 +233,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Sign in to sync your settings', style: AppText.body(size: 14, weight: FontWeight.w500)),
+                  Text('Sign in to sync your settings',
+                      style: AppText.body(size: 14, weight: FontWeight.w500)),
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => context.push('/signin'),
@@ -137,23 +247,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _section('Appearance'),
           _segmented<String>(
             value: _theme,
-            options: const [
-              ('auto', 'Auto'),
-              ('light', 'Light'),
-              ('dark', 'Dark'),
-            ],
-            onChanged: (v) => setState(() => _theme = v),
+            options: const [('auto', 'Auto'), ('light', 'Light'), ('dark', 'Dark')],
+            onChanged: _onThemeChanged,
           ),
           const SizedBox(height: 12),
           _label('Reading font size'),
           _segmented<String>(
             value: _fontSize,
-            options: const [
-              ('small', 'Small'),
-              ('medium', 'Medium'),
-              ('large', 'Large'),
-            ],
-            onChanged: (v) => setState(() => _fontSize = v),
+            options: const [('small', 'Small'), ('medium', 'Medium'), ('large', 'Large')],
+            onChanged: _onFontSizeChanged,
           ),
           const SizedBox(height: 24),
 
@@ -169,7 +271,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     style: AppText.body(size: 11, color: AppColors.inkMute),
                   )
                 : Text(
-                    'Tap the switch to start the daily nudge.',
+                    'Quiet for now. We\'ll be here.',
                     style: AppText.body(size: 11, color: AppColors.inkMute),
                   ),
           ),
@@ -178,12 +280,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             _label('Time'),
             _segmented<String>(
               value: _reminderTime,
-              options: const [
-                ('06:00', '6:00'),
-                ('07:00', '7:00'),
-                ('08:00', '8:00'),
-                ('21:00', '21:00'),
-              ],
+              options: AppConstants.reminderTimeOptions,
               onChanged: _onTimeChanged,
             ),
             const SizedBox(height: 8),
@@ -194,23 +291,45 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ],
           const SizedBox(height: 24),
 
-          if (isAuthed) SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(onPressed: _save, child: const Text('Save')),
-          ),
-          const SizedBox(height: 16),
+          if (isAuthed) ...[
+            _section('Account'),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.logout, size: 20),
+              title: const Text('Sign out'),
+              onTap: _signOut,
+            ),
+            const SizedBox(height: 16),
+            _section('Danger zone'),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(Icons.delete_outline, size: 20, color: Colors.red[700]),
+              title: Text('Delete account', style: TextStyle(color: Colors.red[700])),
+              subtitle: const Text(
+                'Permanently erases your email, progress, journal, and favorites.',
+                style: TextStyle(fontSize: 11),
+              ),
+              onTap: _deleteAccount,
+            ),
+            const SizedBox(height: 24),
+          ],
 
-          if (isAuthed) TextButton(
-            onPressed: () async {
-              await ref.read(userStateProvider.notifier).signOut();
-              if (context.mounted) context.go('/');
-            },
-            child: const Text('Sign out'),
+          const SizedBox(height: 16),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.info_outline, size: 20),
+            title: const Text('About RiseUP'),
+            onTap: () => context.push('/about'),
           ),
-          const SizedBox(height: 8),
-          TextButton(
-            onPressed: () => context.push('/about'),
-            child: const Text('About RiseUP'),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.bug_report_outlined, size: 20),
+            title: const Text('System info'),
+            subtitle: Text(
+              'Version · env · sign-out debug',
+              style: AppText.body(size: 11, color: AppColors.inkMute),
+            ),
+            onTap: () => context.push('/system-info'),
           ),
         ],
       ),
@@ -219,23 +338,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   String _formatTime(String hhmm) {
     if (hhmm.length != 5) return hhmm;
-    final h = hhmm.substring(0, 2);
+    final h = int.tryParse(hhmm.substring(0, 2)) ?? 0;
     final m = hhmm.substring(3);
-    final hour = int.tryParse(h) ?? 0;
-    final ampm = hour < 12 ? 'am' : 'pm';
-    final h12 = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+    final ampm = h < 12 ? 'am' : 'pm';
+    final h12 = h == 0 ? 12 : (h > 12 ? h - 12 : h);
     return '$h12:$m $ampm';
   }
 
   Widget _section(String title) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(title.toUpperCase(), style: AppText.label(size: 11, color: AppColors.inkMute)),
-  );
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(title.toUpperCase(),
+            style: AppText.label(size: 11, color: AppColors.inkMute)),
+      );
 
   Widget _label(String s) => Padding(
-    padding: const EdgeInsets.only(top: 8, bottom: 6),
-    child: Text(s, style: AppText.body(size: 13, color: AppColors.inkSoft)),
-  );
+        padding: const EdgeInsets.only(top: 8, bottom: 6),
+        child: Text(s, style: AppText.body(size: 13, color: AppColors.inkSoft)),
+      );
 
   Widget _segmented<T>({
     required T value,
@@ -255,7 +374,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: GestureDetector(
               onTap: () => onChanged(o.$1),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 120),
+                duration: AppConstants.shortAnim,
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: selected ? AppColors.ink : Colors.transparent,

@@ -30,7 +30,21 @@ class ReminderScheduler {
   /// Triggered from main.dart at app start, from auth_providers on sign-in,
   /// and from settings_screen when the user toggles the switch or picks
   /// a new time.
-  Future<void> reschedule() async {
+  ///
+  /// If [forceImmediate] is true, schedules a one-off test reminder ~5s
+  /// from now (for debug). Skips any daily-schedule reconciliation.
+  Future<void> reschedule({bool forceImmediate = false}) async {
+    if (forceImmediate) {
+      final lesson = await _pickTodaysLesson();
+      final quote = await _pickTodaysQuote();
+      if (lesson == null) return;
+      await NotificationService.instance.scheduleTestReminder(
+        title: 'Test reminder',
+        body: 'You\'re wired up. ${lesson.title}.',
+        lessonSlug: lesson.slug,
+      );
+      return;
+    }
     // Anonymous users can still get reminders; we use local prefs.
     final user = _ref.read(userStateProvider).valueOrNull;
     final prefs = await SharedPreferences.getInstance();
@@ -126,10 +140,10 @@ class ReminderSchedulerNotifier extends StateNotifier<AsyncValue<void>> {
   ReminderSchedulerNotifier(this._ref) : super(const AsyncValue.data(null));
   final Ref _ref;
 
-  Future<void> reschedule() async {
+  Future<void> reschedule({bool forceImmediate = false}) async {
     state = const AsyncValue.loading();
     try {
-      await ReminderScheduler(_ref).reschedule();
+      await ReminderScheduler(_ref).reschedule(forceImmediate: forceImmediate);
       state = const AsyncValue.data(null);
     } catch (e, st) {
       state = AsyncValue.error(e, st);

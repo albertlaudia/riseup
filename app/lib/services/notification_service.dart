@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
+import '../config/app_constants.dart';
 
 /// Channel id for the daily reminder notification.
 const _channelId = 'riseup_daily_reminder';
@@ -156,6 +157,45 @@ class NotificationService {
   Future<void> cancelDailyReminder() async {
     if (!_initialized) await init();
     await _plugin.cancel(_dailyReminderId);
+  }
+
+  /// One-off test reminder, ~5 seconds from now. Used by System Info screen
+  /// to verify the notification channel is working.
+  Future<bool> scheduleTestReminder({
+    required String title,
+    required String body,
+    String? lessonSlug,
+  }) async {
+    if (!_initialized) await init();
+    const androidDetails = AndroidNotificationDetails(
+      AppConstants.notifChannelId,
+      AppConstants.notifChannelName,
+      channelDescription: AppConstants.notifChannelDescription,
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    final scheduled = tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5));
+    try {
+      await _plugin.zonedSchedule(
+        9999, // different id from daily; both can coexist
+        title,
+        body,
+        scheduled,
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        payload: lessonSlug,
+      );
+      return true;
+    } catch (e) {
+      if (kDebugMode) debugPrint('scheduleTestReminder failed: $e');
+      return false;
+    }
   }
 
   /// Build a fresh "today" notification on top of the scheduled one.

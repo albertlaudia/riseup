@@ -215,6 +215,10 @@ const COLLECTIONS = [
       { kind: 'dt',  key: 'streakFreezesResetAt', required: false },
       { kind: 'str', key: 'fcmToken', required: false, size: 255 },
       { kind: 'str', key: 'fcmTokenUpdatedAt', required: false, size: 32 },
+      { kind: 'bool', key: 'marketingOptIn', required: false, default_: false },
+      { kind: 'str', key: 'displayName', required: false, size: 64 },
+      { kind: 'int', key: 'quotesRead', required: false, default_: 0 },
+      { kind: 'dt', key: 'onboardingCompletedAt', required: false },
     ],
     indexes: [
       { key: 'idx_user', type: IndexType.Unique, attrs: ['userId'] },

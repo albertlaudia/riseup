@@ -14,6 +14,8 @@ class UserState {
   final int streakCurrent;
   final int streakLongest;
   final int totalLessons;
+  final int quotesRead;
+  final int? onboardingCompletedAt;  // epoch ms; null = first time
 
   const UserState({
     required this.userId,
@@ -27,9 +29,13 @@ class UserState {
     this.streakCurrent = 0,
     this.streakLongest = 0,
     this.totalLessons = 0,
+    this.quotesRead = 0,
+    this.onboardingCompletedAt,
   });
 
   bool get isPro => tier == UserTier.pro;
+  bool get isAnonymous => userId.isEmpty;
+  bool get hasCompletedOnboarding => onboardingCompletedAt != null;
 
   UserState copyWith({
     String? userId,
@@ -43,6 +49,8 @@ class UserState {
     int? streakCurrent,
     int? streakLongest,
     int? totalLessons,
+    int? quotesRead,
+    int? onboardingCompletedAt,
   }) =>
       UserState(
         userId: userId ?? this.userId,
@@ -56,6 +64,8 @@ class UserState {
         streakCurrent: streakCurrent ?? this.streakCurrent,
         streakLongest: streakLongest ?? this.streakLongest,
         totalLessons: totalLessons ?? this.totalLessons,
+        quotesRead: quotesRead ?? this.quotesRead,
+        onboardingCompletedAt: onboardingCompletedAt ?? this.onboardingCompletedAt,
       );
 
   static const UserState anonymous = UserState(userId: '');

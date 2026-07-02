@@ -50,6 +50,36 @@ class AppwriteService {
     try { await _account.deleteSession(sessionId: 'current'); } catch (_) {}
   }
 
+  /// Send a password recovery email. User clicks the link → lands on
+  /// `https://riseup.app/recover?…` (hosted recovery page) → app calls
+  /// `account.updateRecovery(...)` with userId+secret+newPassword.
+  Future<void> recover(String email, {String? redirectUrl}) async {
+    return _account.createRecovery(
+      email: email,
+      url: redirectUrl ?? 'https://riseup.app/recover',
+    );
+  }
+
+  /// Increment quotesRead on user_settings. Optimistic — caller doesn't
+  /// need to await before showing the new value.
+  Future<void> incrementQuotesRead(String userId) async {
+    final current = await getSettings(userId);
+    final next = ((current['quotesRead'] as int?) ?? 0) + 1;
+    await saveSettings(userId, {'quotesRead': next});
+  }
+
+  /// Delete the user's account. GDPR / App Store requirement.
+  Future<void> deleteAccount() async {
+    // Appwrite: account.delete requires a fresh session. Best-effort.
+    try {
+      await _account.delete();
+    } catch (_) {
+      // Fall back to deleting the current session — caller should prompt
+      // the user to re-auth and retry.
+      rethrow;
+    }
+  }
+
   Future<dynamic> currentUser() async {
     try { return await _account.get(); } catch (_) { return null; }
   }
@@ -95,6 +125,22 @@ class AppwriteService {
       queries: [Query.equal('userId', userId), Query.limit(1)],
     );
     return r.total;
+  }
+
+  /// Sum of xpEarned across all user_progress docs. Returns 0 if none.
+  Future<int> totalXp(String userId) async {
+    final r = await _db.listDocuments(
+      databaseId: databaseId,
+      collectionId: colProgress,
+      queries: [Query.equal('userId', userId)],
+    );
+    var sum = 0;
+    for (final d in r.documents) {
+      final v = d.data['xpEarned'];
+      if (v is int) sum += v;
+      if (v is num) sum += v.toInt();
+    }
+    return sum;
   }
 
   // ---------- favorites ----------

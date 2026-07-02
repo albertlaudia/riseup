@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../screens/about_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/journal_screen.dart';
 import '../screens/library_screen.dart';
 import '../screens/lesson_detail_screen.dart';
 import '../screens/onboarding_screen.dart';
@@ -69,6 +70,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/settings',      builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/about',         builder: (_, __) => const AboutScreen()),
       GoRoute(path: '/system-info',   builder: (_, __) => const SystemInfoScreen()),
+      GoRoute(path: '/journal',       builder: (_, __) => const JournalScreen()),
       GoRoute(path: '/quick-practice', builder: (_, __) => const QuickPracticeScreen()),
     ],
     errorBuilder: (context, state) => Scaffold(

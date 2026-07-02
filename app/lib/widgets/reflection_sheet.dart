@@ -63,7 +63,10 @@ class _ReflectionSheetState extends ConsumerState<ReflectionSheet> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Couldn\'t save: $e')),
+          SnackBar(
+            content: Text("Couldn't save that. Tap to try again."),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } finally {

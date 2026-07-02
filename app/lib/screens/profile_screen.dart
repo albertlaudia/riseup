@@ -128,13 +128,30 @@ class ProfileScreen extends ConsumerWidget {
           ),
 
           const SizedBox(height: 28),
-          OutlinedButton.icon(
-            onPressed: () {
-              Haptic.light();
-              context.push('/settings');
-            },
-            icon: const Icon(Icons.settings_outlined, size: 18),
-            label: const Text('Settings'),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Haptic.light();
+                    context.push('/journal');
+                  },
+                  icon: const Icon(Icons.book_outlined, size: 18),
+                  label: const Text('Journal'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Haptic.light();
+                    context.push('/settings');
+                  },
+                  icon: const Icon(Icons.settings_outlined, size: 18),
+                  label: const Text('Settings'),
+                ),
+              ),
+            ],
           ),
         ],
       ),

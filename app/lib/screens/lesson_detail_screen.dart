@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../config/app_constants.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../models/lesson.dart';
 import '../providers/app_providers.dart';
 import '../providers/auth_providers.dart';
+import '../providers/favorites_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/markdown_renderer.dart';
@@ -11,6 +13,8 @@ import '../widgets/pro_badge.dart';
 import '../widgets/quote_card.dart';
 import '../widgets/reflection_sheet.dart';
 import '../widgets/theme_pill.dart';
+import '../widgets/haptic.dart';
+import '../widgets/confetti.dart';
 
 class LessonDetailScreen extends ConsumerStatefulWidget {
   const LessonDetailScreen({super.key, required this.slug});
@@ -34,23 +38,57 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
     }
     setState(() => _marking = true);
     try {
-      await ref.read(appwriteProvider).markLessonComplete(user.userId, widget.slug, xpEarned: 10);
-      await ref.read(userStateProvider.notifier).refresh();
+      await ref.read(appwriteProvider).markLessonComplete(
+            user.userId,
+            widget.slug,
+            xpEarned: AppConstants.defaultXpPerLesson,
+          );
+      // Bump the streak (server is the source of truth for completion;
+      // streak is local-first for v1).
+      final newStreak = await ref.read(userStateProvider.notifier).markLessonToday();
+      // Evaluate achievements — newly unlocked ones are returned.
+      final newlyUnlocked = await ref.read(unlockedAchievementsProvider.notifier).evaluateAndUnlock();
+      if (!mounted) return;
+      if (newStreak > 1) {
+        // Subtle "keep going" signal without being annoying.
+        Haptic.light();
+      }
+      if (newlyUnlocked.isNotEmpty) {
+        Haptic.heavy();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Unlocked: ${newlyUnlocked.first}${newlyUnlocked.length > 1 ? ' +${newlyUnlocked.length - 1} more' : ''}'),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
       if (mounted) {
         setState(() => _completed = true);
+        Haptic.medium();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Lesson complete · +10 XP')),
+          SnackBar(
+            content: Text('Saved. +${AppConstants.defaultXpPerLesson} XP.'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
-        // After completion: show reflection sheet if we have a prompt for this lesson
-        final prompt = await ref.read(pocketBaseProvider).getPromptForLesson(lesson.id);
+        // Fetch the lesson (to get its PB id) then look up the prompt.
+        final lesson = await ref.read(pocketBaseProvider).getLessonBySlug(widget.slug);
         if (!mounted) return;
-        if (prompt != null) {
-          await showModalBottomSheet<void>(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (_) => ReflectionSheet(lessonSlug: widget.slug, promptText: prompt.text),
-          );
+        if (lesson != null) {
+          final prompt = await ref.read(pocketBaseProvider).getPromptForLesson(lesson.id);
+          if (!mounted) return;
+          if (prompt != null) {
+            await showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => ReflectionSheet(
+                lessonSlug: widget.slug,
+                promptText: prompt.text,
+              ),
+            );
+          }
         }
       }
     } catch (e) {

@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import '../models/content.dart';
 import '../models/lesson.dart';
 import '../providers/app_providers.dart';
+import '../providers/favorites_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
+import '../widgets/empty_state.dart';
 import '../widgets/lesson_card.dart';
 
 class LibraryScreen extends ConsumerStatefulWidget {
@@ -45,10 +47,15 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
               : auths.where((a) => a.slug == _authorSlug).cast<Author?>().firstWhere(
                     (a) => a != null, orElse: () => null);
 
+          final query = ref.watch(searchQueryProvider).trim().toLowerCase();
           var visible = all.where((l) {
             if (selectedCategory != null && l.themeId != selectedCategory.id) return false;
             if (selectedAuthor   != null && l.authorId != selectedAuthor.id)   return false;
             if (_difficulty != null && l.difficulty?.name != _difficulty)     return false;
+            if (query.isNotEmpty) {
+              final hay = '${l.title} ${l.intro ?? ''} ${l.content}'.toLowerCase();
+              if (!hay.contains(query)) return false;
+            }
             return true;
           }).toList();
 
@@ -70,7 +77,14 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
                   _summaryLine(visible.length, selectedCategory, selectedAuthor, _difficulty),
                   style: AppText.body(size: 14, color: AppColors.inkMute),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
+                _SearchField(
+                  onChanged: (q) =>
+                      ref.read(searchQueryProvider.notifier).set(q),
+                  onClear: () =>
+                      ref.read(searchQueryProvider.notifier).clear(),
+                ),
+                const SizedBox(height: 16),
 
                 _filterRow(
                   label: 'Theme',
@@ -119,11 +133,16 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
 
                 const SizedBox(height: 16),
                 if (visible.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 40),
-                    child: Center(
-                      child: Text('No lessons match.', style: AppText.body(color: AppColors.inkMute)),
-                    ),
+                  EmptyState(
+                    icon: query.isNotEmpty ? '🔍' : '🌫️',
+                    title: query.isNotEmpty ? 'Nothing matches' : 'No lessons in this view',
+                    body: query.isNotEmpty
+                        ? 'Try a different word, or clear filters.'
+                        : 'Try a different filter.',
+                    ctaLabel: query.isNotEmpty ? 'Clear search' : null,
+                    onCta: query.isNotEmpty
+                        ? () => ref.read(searchQueryProvider.notifier).clear()
+                        : null,
                   ),
 
                 for (final entry in byLevel.entries)
@@ -202,6 +221,72 @@ class _LibraryScreenState extends ConsumerState<LibraryScreen> {
             size: 12,
             color: selected ? AppColors.paper : (color ?? AppColors.inkSoft),
           ).copyWith(fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchField extends StatefulWidget {
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+  const _SearchField({required this.onChanged, required this.onClear});
+
+  @override
+  State<_SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends State<_SearchField> {
+  final _ctrl = TextEditingController();
+  bool _focused = false;
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      onFocusChange: (v) => setState(() => _focused = v),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.walrus,
+          borderRadius: BorderRadius.circular(12),
+          border: _focused
+              ? Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 1.5)
+              : null,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        child: Row(
+          children: [
+            const Icon(Icons.search, size: 18, color: AppColors.inkMute),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _ctrl,
+                onChanged: widget.onChanged,
+                style: AppText.body(size: 14),
+                decoration: const InputDecoration(
+                  hintText: 'Search lessons…',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            if (_ctrl.text.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  _ctrl.clear();
+                  widget.onClear();
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(4),
+                  child: Icon(Icons.close, size: 16, color: AppColors.inkMute),
+                ),
+              ),
+          ],
         ),
       ),
     );

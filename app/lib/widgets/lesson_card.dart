@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import '../models/content.dart';
 import '../models/lesson.dart';
+import '../providers/favorites_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'haptic.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_text_styles.dart';
 import 'pro_badge.dart';
 import 'theme_pill.dart';
 
-class LessonCard extends StatelessWidget {
+class LessonCard extends ConsumerWidget {
   const LessonCard({
     super.key,
     required this.lesson,
@@ -25,7 +28,8 @@ class LessonCard extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFav = ref.watch(favoritesProvider.select((s) => s.valueOrNull?.contains('lesson:${lesson.slug}') ?? false));
     return Stack(
       children: [
         switch (variant) {
@@ -34,6 +38,19 @@ class LessonCard extends StatelessWidget {
           LessonCardVariant.defaultCard  => _defaultCard(context),
         },
         if (locked) LockedOverlay(),
+        if (!locked) Positioned(
+          top: 12, right: 12,
+          child: _FavoriteBookmark(
+            isFav: isFav,
+            onTap: () {
+              Haptic.medium();
+              ref.read(favoritesProvider.notifier).toggle(
+                kind: 'lesson',
+                targetId: lesson.slug,
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -216,3 +233,38 @@ class LessonCard extends StatelessWidget {
 }
 
 enum LessonCardVariant { hero, compact, defaultCard }
+
+class _FavoriteBookmark extends StatelessWidget {
+  final bool isFav;
+  final VoidCallback onTap;
+  const _FavoriteBookmark({required this.isFav, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 36, height: 36,
+        decoration: BoxDecoration(
+          color: AppColors.paper.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: AppColors.ink.withValues(alpha: 0.08)),
+        ),
+        alignment: Alignment.center,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+          child: Text(
+            isFav ? '★' : '☆',
+            key: ValueKey(isFav),
+            style: TextStyle(
+              fontSize: 18,
+              color: isFav ? AppColors.accent : AppColors.inkMute,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

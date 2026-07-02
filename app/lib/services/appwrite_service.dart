@@ -393,6 +393,42 @@ class AppwriteService {
   }
 }
 
+  // ---------- achievements ----------
+  /// Returns the list of achievement codes the user has unlocked.
+  Future<List<String>> getUnlockedAchievements(String userId) async {
+    final r = await _db.listDocuments(
+      databaseId: databaseId,
+      collectionId: colAchievements,
+      queries: [Query.equal('userId', userId), Query.limit(100)],
+    );
+    return r.documents
+        .map((d) => d.data['code'] as String? ?? '')
+        .where((c) => c.isNotEmpty)
+        .toList();
+  }
+
+  /// Insert a row into user_achievements (idempotent at the data layer if
+  /// your PB collection has a unique index on userId+code).
+  Future<void> unlockAchievement(String userId, String code) async {
+    try {
+      await _db.createDocument(
+        databaseId: databaseId,
+        collectionId: colAchievements,
+        documentId: ID.unique(),
+        data: {
+          'userId': userId,
+          'code': code,
+          'unlockedAt': DateTime.now().toUtc().toIso8601String(),
+        },
+        permissions: [
+          Permission.read(Role.user(userId)),
+          Permission.write(Role.user(userId)),
+          Permission.delete(Role.user(userId)),
+        ],
+      );
+    } catch (_) {/* already unlocked or rate-limited */}
+  }
+
 /// Helper extension: a User's email + id + name.
 extension AppwriteUserExt on User {
   String get emailSafe => email;

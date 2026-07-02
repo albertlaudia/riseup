@@ -1,0 +1,13 @@
+# key.properties — release signing config. Copy to android/key.properties
+# locally and fill in. NEVER commit the real file. The .gitignore excludes
+# android/key.properties.
+#
+# Generate the keystore once with:
+#   keytool -genkey -v -keystore ~/upload-keystores/riseup-upload.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias riseup
+#
+# Then fill in the four values below:
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=riseup
+storeFile=/absolute/path/to/riseup-upload.jks

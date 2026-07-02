@@ -49,3 +49,36 @@ app/pubspec.lock
 # npm artifacts inside Flutter project (Flutter uses Dart, not npm)
 app/package-lock.json
 app/node_modules/
+
+# ─── Flutter app (app/) ───
+app/.dart_tool/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/.idea/
+app/.vscode/
+app/.metadata.lock
+app/build/
+app/.symlinks/
+app/pubspec.lock
+app/.flutter-plugins
+app/ios/Pods/
+app/ios/Flutter/Generated.xcconfig
+app/ios/Flutter/flutter_export_environment.sh
+app/ios/Runner.xcworkspace/xcuserdata/
+app/ios/Runner.xcodeproj/xcuserdata/
+app/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+app/ios/Runner.xcodeproj/xcshareddata/xcschemes/Runner*.xcscheme
+
+# Per-machine + per-keystore (NEVER commit)
+app/android/local.properties
+app/android/app/key.properties
+app/android/.gradle/
+app/android/captures/
+app/android/gradlew
+app/android/gradlew.bat
+app/android/gradle/wrapper/gradle-wrapper.jar
+app/android/app/release/
+
+# Build outputs from the icon + splash generators
+app/assets/icons/icon_*.png
+app/assets/splash/splash_*.png

@@ -1,0 +1,19 @@
+**/Flutter/flutter_export_environment.sh
+**/Flutter/Generated.xcconfig
+**/Flutter/ephemeral/
+**/Pods/
+**/Runner.xcworkspace/xcuserdata/
+**/Runner.xcodeproj/xcuserdata/
+**/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+**/*.xcuserstate
+
+# iOS build artifacts
+build/
+DerivedData/
+
+# CocoaPods
+Pods/
+
+# Local config
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh

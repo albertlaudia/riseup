@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Splash background — solid paper color + the R mark in the center.
+  We use a vector drawable for the R so we don't need a bitmap per density.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/paper" />
+    <item android:gravity="center">
+        <bitmap android:src="@mipmap/ic_launcher_foreground" />
+    </item>
+</layer-list>

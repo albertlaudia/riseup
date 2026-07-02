@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>$(DEVELOPMENT_LANGUAGE)</string>
+    <key>CFBundleDisplayName</key>
+    <string>RiseUP</string>
+    <key>CFBundleExecutable</key>
+    <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>riseup</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$(FLUTTER_BUILD_NAME)</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleVersion</key>
+    <string>$(FLUTTER_BUILD_NUMBER)</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+
+    <!-- ===== Local notifications ===== -->
+    <!-- flutter_local_notifications requires UIBackgroundModes: remote-notification
+         if you ever wire FCM. For local-only reminders, this is optional. -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+    </array>
+
+    <!-- ===== App Transport Security ===== -->
+    <!-- Force ATS — we don't talk to plaintext endpoints. PB + Appwrite
+         endpoints are HTTPS-only. -->
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <false/>
+        <key>NSAllowsArbitraryLoadsInWebContent</key>
+        <false/>
+        <key>NSExceptionDomains</key>
+        <dict/>
+    </dict>
+
+    <!-- ===== URL Schemes (deep links) ===== -->
+    <!-- riseup://library/{slug} opens the lesson at that slug.
+         For production, replace with Universal Links (apple-app-site-association). -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLName</key>
+            <string>com.albertlaudia.riseup</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>riseup</string>
+            </array>
+        </dict>
+    </array>
+
+    <!-- ===== Permissions ===== -->
+    <!-- Notifications — flutter_local_notifications package calls this on iOS 10+. -->
+    <key>NSUserNotificationsUsageDescription</key>
+    <string>We use notifications to send you a daily morning nudge to today's Stoic practice. You can turn this off any time in Settings.</string>
+
+    <!-- Camera (for any future scan-a-quote feature) -->
+    <key>NSCameraUsageDescription</key>
+    <string>Take a photo of a passage to save it as a journal entry.</string>
+
+    <!-- Photo library (future import feature) -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Import images to attach to your journal entries.</string>
+
+    <!-- Speech recognition (future TTS input) -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Transcribe voice notes you attach to lessons.</string>
+
+    <!-- Microphone (future TTS input) -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Record voice notes for your journal.</string>
+
+    <!-- ===== App icons & launch ===== -->
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UIMainStoryboardFile</key>
+    <string>Main</string>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UIViewControllerBasedStatusBarAppearance</key>
+    <true/>
+
+    <!-- ===== Marketing / store metadata ===== -->
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 RiseUP. All rights reserved.</string>
+
+    <!-- ===== App Tracking Transparency (iOS 14.5+) ===== -->
+    <!-- We don't track. Default-deny if anything ever asks. -->
+    <key>NSUserTrackingUsageDescription</key>
+    <string>RiseUP does not track you across other apps or websites.</string>
+
+    <!-- ===== App Store / TestFlight ===== -->
+    <!-- LSApplicationCategoryType drives the App Store category. -->
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.book</string>
+
+    <!-- ===== Localized display name ===== -->
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+    </array>
+
+    <!-- ===== ITSAppUsesNonExemptEncryption ===== -->
+    <!-- We use HTTPS only; no custom crypto. App Store reviewer-friendly. -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+
+    <!-- ===== Bundle version (build) ===== -->
+    <key>MinimumOSVersion</key>
+    <string>13.0</string>
+</dict>
+</plist>

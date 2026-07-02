@@ -1,0 +1,24 @@
+# local.properties — copied from local.properties.template and edited
+# locally. This file is in .gitignore (contains machine-specific paths
+# and signing secrets).
+
+# Path to your Flutter SDK. Find it with `which flutter` then `readlink -f`.
+# Example: /Users/you/dev/flutter
+flutter.sdk=/path/to/flutter/sdk
+
+# Path to your Android SDK. Set via ANDROID_HOME or ANDROID_SDK_ROOT env
+# vars, or paste the absolute path here.
+sdk.dir=/path/to/Android/Sdk
+
+# Track Flutter build outputs.
+flutter.versionName=0.1.0
+flutter.versionCode=1
+flutter.buildMode=debug
+
+# Appwrite project ID (read by --dart-define at build time, also kept here
+# so that `flutter build apk` reads it without needing command-line flags).
+APPWRITE_PROJECT_ID=
+APPWRITE_ENDPOINT=https://cloud.appwrite.io/v1
+
+# PocketBase endpoint (the static-content server).
+POCKETBASE_URL=https://pocketbase.scaleupcrm.com

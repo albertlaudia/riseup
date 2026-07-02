@@ -1,0 +1,112 @@
+// app module — RiseUP Android build config.
+//
+// This is the only file most Flutter app authors need to touch.
+// All Flutter-specific behavior is handled by the Flutter Gradle plugin.
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode') ?: '1'
+def flutterVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
+def flutterSdkPath = localProperties.getProperty('flutter.sdk')
+assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def appwriteProjectId = project.findProperty('APPWRITE_PROJECT_ID') ?: localProperties.getProperty('APPWRITE_PROJECT_ID', '')
+def appwriteEndpoint = project.findProperty('APPWRITE_ENDPOINT') ?: localProperties.getProperty('APPWRITE_ENDPOINT', 'https://cloud.appwrite.io/v1')
+def pocketbaseUrl = project.findProperty('POCKETBASE_URL') ?: localProperties.getProperty('POCKETBASE_URL', '')
+
+android {
+    namespace "com.albertlaudia.riseup"
+    compileSdk 34
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    // Signing — release builds sign with the keystore referenced from
+    // android/key.properties. The template file is gitignored; create yours
+    // locally with the contents shown in PRODUCTION.md.
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.albertlaudia.riseup"
+        // Min API 23 (Android 6.0) — covers 99%+ of active devices and
+        // matches the fcm + flutter_local_notifications package minimums.
+        minSdkVersion 23
+        targetSdkVersion 34
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        multiDexEnabled true
+    }
+
+    buildTypes {
+        release {
+            signingConfig keystorePropertiesFile.exists() ? signingConfigs.release : signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Inject dart-defines for release builds so the constants like
+            // AppConstants.supportEmail flow through without rebuild.
+            manifestPlaceholders = [
+                appwriteProjectId: appwriteProjectId,
+                appwriteEndpoint:  appwriteEndpoint,
+                pocketbaseUrl:     pocketbaseUrl,
+            ]
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-DEBUG"
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/license.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt', 'META-INF/notice.txt', 'META-INF/ASL2.0', 'META-INF/*.kotlin_module']
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'androidx.multidex:multidex:2.0.1'
+}

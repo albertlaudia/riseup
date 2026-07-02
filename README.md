@@ -7,8 +7,10 @@ This is a monorepo with three pieces:
 | Folder | What | Stack |
 |---|---|---|
 | [`web/`](./web) | Marketing / browser app | Next.js 15 (App Router) + Tailwind, reads PocketBase only |
-| [`app/`](./app) | Mobile app | Flutter 3.22+, reads PocketBase (static) + Appwrite (user data) |
+| [`app/`](./app) | Mobile app (iOS + Android + web) | Flutter 3.22+, reads PocketBase (static) + Appwrite (user data) |
 | [`pb/`](./pb) | Backend tooling | Node.js scripts — bootstraps PB, seeds content, sets up Appwrite collections |
+| [`server/`](./server) | Server-side jobs | Cloudflare Workers — FCM push notifications (Year 2) |
+| [`twa/`](./twa) | Trusted Web Activity | Bubblewrap config to ship the web app as a Play Store app |
 
 The live web app is at https://riseup.stoic (or whatever you've pointed at the `web/out/` static export).
 
@@ -90,7 +92,7 @@ flutter run
 | Lessons | 15 | `rup_lessons` |
 | Quotes | 53 | `rup_quotes` |
 | Achievements | 12 | `rup_achievements` |
-| Plans | 4 | `rup_plans` (free + pro_monthly + pro_yearly + pro_lifetime) |
+| Plans | 3 | `rup_plans` (free + pro_monthly + pro_yearly; pro_lifetime deprecated) |
 
 ## License
 

@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../config.dart';
+import '../config/app_config.dart';
 import '../providers/app_providers.dart';
 import '../providers/auth_providers.dart';
 import '../theme/app_colors.dart';

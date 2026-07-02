@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  App-wide Android colors. Mirror of lib/theme/app_colors.dart so the
+  splash + status bar match the Flutter theme.
+-->
+<resources>
+    <color name="paper">#FAF6EF</color>
+    <color name="ink">#1F1D1A</color>
+    <color name="accent">#B9532E</color>
+    <color name="walrus">#F0E8DA</color>
+</resources>
